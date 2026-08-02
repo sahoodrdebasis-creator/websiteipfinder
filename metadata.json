@@ -1,0 +1,6 @@
+{
+  "name": "Website IP Finder",
+  "description": "Modern website IP address finder, DNS record analyzer, ISP & hosting locator, and WHOIS domain registry checker.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
