@@ -72,22 +72,27 @@ export default function App() {
           );
         }
 
-        setResult(data);
+        const lookupData = data.success && data.domain ? data : null;
+        if (!lookupData) {
+          throw new Error("Lookup service returned an invalid response.");
+        }
+
+        setResult(lookupData);
 
         // Save to History
         const newItem: HistoryItem = {
           id: Date.now().toString(),
-          domain: data.domain,
-          primaryIp: data.primaryIp,
-          country: data.hosting.country || "Unknown",
-          countryCode: data.hosting.countryCode || "",
-          flag: data.hosting.flag || "🌐",
+          domain: lookupData.domain,
+          primaryIp: lookupData.primaryIp,
+          country: lookupData.hosting.country || "Unknown",
+          countryCode: lookupData.hosting.countryCode || "",
+          flag: lookupData.hosting.flag || "🌐",
           timestamp: new Date().toISOString(),
         };
 
         setHistory((prevHistory) => {
           const filtered = prevHistory.filter(
-            (h) => h.domain.toLowerCase() !== data.domain.toLowerCase()
+            (h) => h.domain.toLowerCase() !== lookupData.domain.toLowerCase()
           );
           const updated = [newItem, ...filtered].slice(0, 15);
           try {
