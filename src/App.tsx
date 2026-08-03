@@ -64,7 +64,16 @@ export default function App() {
         const response = await fetch(
           `/api/lookup?domain=${encodeURIComponent(domainQuery)}`
         );
-        const data = await response.json();
+        const text = await response.text();
+        let data: any;
+
+        try {
+          data = JSON.parse(text);
+        } catch (parseError: any) {
+          throw new Error(
+            `Lookup service returned invalid JSON: ${text.slice(0, 200)}`
+          );
+        }
 
         if (!response.ok || !data.success) {
           throw new Error(
@@ -72,27 +81,22 @@ export default function App() {
           );
         }
 
-        const lookupData = data.success && data.domain ? data : null;
-        if (!lookupData) {
-          throw new Error("Lookup service returned an invalid response.");
-        }
-
-        setResult(lookupData);
+        setResult(data);
 
         // Save to History
         const newItem: HistoryItem = {
           id: Date.now().toString(),
-          domain: lookupData.domain,
-          primaryIp: lookupData.primaryIp,
-          country: lookupData.hosting.country || "Unknown",
-          countryCode: lookupData.hosting.countryCode || "",
-          flag: lookupData.hosting.flag || "🌐",
+          domain: data.domain,
+          primaryIp: data.primaryIp,
+          country: data.hosting.country || "Unknown",
+          countryCode: data.hosting.countryCode || "",
+          flag: data.hosting.flag || "🌐",
           timestamp: new Date().toISOString(),
         };
 
         setHistory((prevHistory) => {
           const filtered = prevHistory.filter(
-            (h) => h.domain.toLowerCase() !== lookupData.domain.toLowerCase()
+            (h) => h.domain.toLowerCase() !== data.domain.toLowerCase()
           );
           const updated = [newItem, ...filtered].slice(0, 15);
           try {
